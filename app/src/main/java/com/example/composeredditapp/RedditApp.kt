@@ -1,0 +1,228 @@
+package com.example.composeredditapp
+
+import android.annotation.SuppressLint
+import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material3.BottomSheetScaffoldState
+import androidx.compose.material3.DrawerState
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarColors
+import androidx.compose.material3.rememberDrawerState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import com.example.composeredditapp.drawer.AppDrawer
+import com.example.composeredditapp.routing.Screen
+import com.example.composeredditapp.screens.AddScreen
+import com.example.composeredditapp.screens.HomeScreen
+import com.example.composeredditapp.screens.MyProfileScreen
+import com.example.composeredditapp.screens.SubredditsScreen
+import com.example.composeredditapp.ui.theme.ComposeRedditAppTheme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+
+@Composable
+fun RedditApp() {
+    ComposeRedditAppTheme {
+        AppContent()
+    }
+}
+
+
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@Composable
+private fun AppContent() {
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
+    val coroutineScope: CoroutineScope = rememberCoroutineScope()
+    val navController = rememberNavController()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+
+    Crossfade(targetState = navBackStackEntry?.destination?.route) { route ->
+
+        ModalNavigationDrawer(
+            drawerState = drawerState,
+            drawerContent = {
+                AppDrawer(
+                    onScreenSelected = { screen ->
+                        navController.navigate(screen.route) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                        coroutineScope.launch { drawerState.close() }
+                    }
+                )
+            },
+            content = {
+                Scaffold(
+                    topBar = getTopBar(Screen.fromRoute(route), drawerState, coroutineScope),
+                    bottomBar = {
+                        BottomNavigationComponent(navController = navController)
+                    },
+                    content = {
+                        MainScreenContainer(
+                            navController = navController,
+                            modifier = Modifier.padding(bottom = 56.dp)
+                        )
+                    }
+                )
+            }
+        )
+    }
+
+}
+
+fun getTopBar(
+    screenState: Screen,
+    drawerState: DrawerState,
+    coroutineScope: CoroutineScope
+): @Composable (() -> Unit) {
+    if(screenState == Screen.MyProfile) {
+        return {}
+    } else {
+        return {
+            TopAppBar(
+                screen = screenState,
+                drawerState = drawerState,
+                coroutineScope = coroutineScope
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TopAppBar(
+    screen: Screen,
+    drawerState: DrawerState,
+    coroutineScope: CoroutineScope
+) {
+    val colors = MaterialTheme.colorScheme
+
+    androidx.compose.material3.TopAppBar(
+        title = {
+            Text(
+                text = stringResource(screen.titleResId),
+                color = colors.primary
+            )
+        },
+        colors = TopAppBarColors(
+            containerColor = colors.background, titleContentColor = colors.primary,
+            scrolledContainerColor = Color.Transparent,
+            navigationIconContentColor = Color.Transparent,
+            actionIconContentColor =Color.Transparent,
+        ),
+        navigationIcon = {
+            IconButton(onClick = {
+                coroutineScope.launch { drawerState.open() }
+            }) {
+                Icon(
+                    Icons.Filled.AccountCircle,
+                    tint = Color.LightGray,
+                    contentDescription = stringResource(id = R.string.account)
+                )
+            }
+        }
+    )
+}
+
+@Composable
+private fun MainScreenContainer(
+    navController: NavHostController,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier,
+        color = MaterialTheme.colorScheme.background
+    ) {
+        NavHost(
+            navController = navController,
+            startDestination = Screen.Home.route
+        ) {
+            composable(Screen.Home.route) {
+                HomeScreen()
+            }
+            composable(Screen.Subscriptions.route) {
+                SubredditsScreen()
+            }
+            composable(Screen.NewPost.route) {
+                AddScreen()
+            }
+            composable(Screen.MyProfile.route) {
+                MyProfileScreen()
+            }
+        }
+    }
+}
+
+@Composable
+private fun BottomNavigationComponent(
+    modifier: Modifier = Modifier,
+    navController: NavHostController
+) {
+    val items = listOf(
+        NavigationItem(0, R.drawable.ic_baseline_home_24, R.string.home_icon, Screen.Home),
+        NavigationItem(
+            1,
+            R.drawable.ic_baseline_format_list_bulleted_24,
+            R.string.subscriptions_icon,
+            Screen.Subscriptions
+        ),
+        NavigationItem(2, R.drawable.ic_baseline_add_24, R.string.post_icon, Screen.NewPost),
+    )
+    NavigationBar(modifier = modifier) {
+        items.forEach {
+            NavigationBarItem(
+                icon = {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(id = it.vectorResourcesId),
+                        contentDescription = stringResource(id = it.contentDescriptionResourceId)
+                    )
+                },
+                selected = navController.currentDestination?.route == it.screen.route,
+                onClick = {
+                    navController.navigate(it.screen.route) {
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+            )
+        }
+    }
+}
+
+private data class NavigationItem(
+    val index: Int,
+    val vectorResourcesId: Int,
+    val contentDescriptionResourceId: Int,
+    val screen: Screen
+)
