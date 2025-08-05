@@ -5,10 +5,12 @@ import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.savedstate.SavedStateRegistryOwner
+import com.example.composeredditapp.repository.Repository
 
 @Suppress("UNCHECKED_CAST")
 class MainViewModelFactory(
     owner: SavedStateRegistryOwner,
+    private val repository: Repository,
     private val defaultArgs: Bundle? = null
 ): AbstractSavedStateViewModelFactory(owner,defaultArgs) {
 
@@ -17,6 +19,6 @@ class MainViewModelFactory(
         modelClass: Class<T>,
         handle: SavedStateHandle
     ): T {
-        return MainViewModel() as T
+        return MainViewModel(repository) as T
     }
 }

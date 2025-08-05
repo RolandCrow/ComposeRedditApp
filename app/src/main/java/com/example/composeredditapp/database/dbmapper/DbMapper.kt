@@ -5,5 +5,5 @@ import com.example.composeredditapp.model.PostModel
 
 interface DbMapper {
     fun mapPost(dbPostDbModel: PostDbModel): PostModel
-    fun mapDbPost(postModel: PostModel): PostModel
+    fun mapDbPost(postModel: PostModel): PostDbModel
 }

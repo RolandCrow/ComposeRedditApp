@@ -22,7 +22,11 @@ import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -42,20 +46,21 @@ import com.example.composeredditapp.screens.HomeScreen
 import com.example.composeredditapp.screens.MyProfileScreen
 import com.example.composeredditapp.screens.SubredditsScreen
 import com.example.composeredditapp.ui.theme.ComposeRedditAppTheme
+import com.example.composeredditapp.viewmodel.MainViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun RedditApp() {
+fun RedditApp(viewModel: MainViewModel) {
     ComposeRedditAppTheme {
-        AppContent()
+        AppContent(viewModel)
     }
 }
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-private fun AppContent() {
+private fun AppContent(viewModel: MainViewModel) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val coroutineScope: CoroutineScope = rememberCoroutineScope()
     val navController = rememberNavController()
@@ -88,7 +93,8 @@ private fun AppContent() {
                     content = {
                         MainScreenContainer(
                             navController = navController,
-                            modifier = Modifier.padding(bottom = 56.dp)
+                            modifier = Modifier.padding(bottom = 56.dp),
+                            viewModel = viewModel
                         )
                     }
                 )
@@ -155,7 +161,8 @@ fun TopAppBar(
 @Composable
 private fun MainScreenContainer(
     navController: NavHostController,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: MainViewModel
 ) {
     Surface(
         modifier = modifier,
@@ -166,7 +173,7 @@ private fun MainScreenContainer(
             startDestination = Screen.Home.route
         ) {
             composable(Screen.Home.route) {
-                HomeScreen()
+                HomeScreen(viewModel)
             }
             composable(Screen.Subscriptions.route) {
                 SubredditsScreen()
@@ -175,7 +182,7 @@ private fun MainScreenContainer(
                 AddScreen()
             }
             composable(Screen.MyProfile.route) {
-                MyProfileScreen()
+                MyProfileScreen(viewModel) {navController.popBackStack() }
             }
         }
     }
@@ -186,6 +193,7 @@ private fun BottomNavigationComponent(
     modifier: Modifier = Modifier,
     navController: NavHostController
 ) {
+    var selectedItem by remember { mutableIntStateOf(0) }
     val items = listOf(
         NavigationItem(0, R.drawable.ic_baseline_home_24, R.string.home_icon, Screen.Home),
         NavigationItem(
@@ -205,8 +213,9 @@ private fun BottomNavigationComponent(
                         contentDescription = stringResource(id = it.contentDescriptionResourceId)
                     )
                 },
-                selected = navController.currentDestination?.route == it.screen.route,
+                selected = selectedItem == it.index,
                 onClick = {
+                    selectedItem = it.index
                     navController.navigate(it.screen.route) {
                         popUpTo(navController.graph.findStartDestination().id) {
                             saveState = true
