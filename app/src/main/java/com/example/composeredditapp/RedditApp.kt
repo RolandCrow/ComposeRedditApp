@@ -109,7 +109,7 @@ fun getTopBar(
     drawerState: DrawerState,
     coroutineScope: CoroutineScope
 ): @Composable (() -> Unit) {
-    if(screenState == Screen.MyProfile) {
+    if(screenState == Screen.MyProfile || screenState == Screen.ChooseCommunity) {
         return {}
     } else {
         return {

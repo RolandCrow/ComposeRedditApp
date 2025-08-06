@@ -1,17 +1,25 @@
 package com.example.composeredditapp.screens
 
-import android.graphics.Color
-import android.graphics.drawable.Icon
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -28,13 +36,106 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
+import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.composeredditapp.R
 import com.example.composeredditapp.components.BackgroundText
 import com.example.composeredditapp.model.SubredditModel
 
 @Composable
-fun SubredditsScreen() {
+fun SubredditsScreen(modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier.verticalScroll(rememberScrollState())
+    ) {
+        Text(
+            modifier = modifier.padding(16.dp),
+            text = stringResource(R.string.recently_visited_subreddits),
+            fontSize = 12.sp,
+            style = MaterialTheme.typography.titleMedium
+        )
 
+        LazyRow(
+            modifier = modifier.padding(end = 16.dp)
+        ) {
+            items(subreddits) {Subreddit(it)}
+        }
+        Communities(modifier)
+    }
+}
+
+@Composable
+fun Subreddit(subredditModel: SubredditModel, modifier: Modifier = Modifier) {
+    Card(
+       colors = CardColors(
+           contentColor = MaterialTheme.colorScheme.primary,
+           containerColor = MaterialTheme.colorScheme.background,
+           disabledContentColor = MaterialTheme.colorScheme.background,
+           disabledContainerColor =  MaterialTheme.colorScheme.background
+       ),
+        shape = RoundedCornerShape(4.dp),
+        modifier = modifier
+            .size(120.dp)
+            .padding(
+                start = 2.dp,
+                end = 2.dp,
+                top = 4.dp,
+                bottom = 4.dp
+            )
+    ) {
+        SubredditBody(subredditModel)
+    }
+}
+
+@Composable
+fun SubredditBody(
+    subredditModel: SubredditModel, modifier: Modifier = Modifier
+) {
+    ConstraintLayout(
+        modifier = modifier
+            .fillMaxSize()
+            .background(color = MaterialTheme.colorScheme.primary)
+    ) {
+        val (backgroundImage,icon,name,members,description) = createRefs()
+
+        SubredditImage(
+            modifier = modifier.constrainAs(backgroundImage) {
+                centerHorizontallyTo(parent)
+                top.linkTo(parent.top)
+            }
+        )
+
+        SubredditIcon(
+            modifier = modifier.constrainAs(icon){
+                top.linkTo(backgroundImage.bottom)
+                bottom.linkTo(backgroundImage.bottom)
+                centerHorizontallyTo(parent)
+            }.zIndex(1f)
+        )
+
+        SubredditName(
+            nameStringRes = subredditModel.name,
+            modifier = modifier.constrainAs(name) {
+                top.linkTo(icon.bottom)
+                centerHorizontallyTo(parent)
+            }
+        )
+
+        SubredditMembers(
+            memberStringRes = subredditModel.members,
+            modifier = modifier.constrainAs(members) {
+                top.linkTo(name.bottom)
+                centerHorizontallyTo(parent)
+            }
+        )
+
+        SubredditDescription(
+            descriptionStringRes = subredditModel.description,
+            modifier = modifier.constrainAs(description) {
+                top.linkTo(members.bottom)
+                centerHorizontallyTo(parent)
+            }
+        )
+    }
 }
 
 @Composable
@@ -55,6 +156,17 @@ fun SubredditIcon(modifier: Modifier) {
         tint = MaterialTheme.colorScheme.primary,
         imageVector = ImageVector.vectorResource(id = R.drawable.ic_planet),
         contentDescription = stringResource(id = R.string.subreddit_icon)
+    )
+}
+
+@Composable
+fun SubredditName(modifier: Modifier,@StringRes nameStringRes: Int) {
+    Text(
+        fontWeight = FontWeight.Bold,
+        fontSize = 10.sp,
+        text = stringResource(nameStringRes),
+        color = MaterialTheme.colorScheme.primary,
+        modifier = modifier.padding(4.dp)
     )
 }
 
