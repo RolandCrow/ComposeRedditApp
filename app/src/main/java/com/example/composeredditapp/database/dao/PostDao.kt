@@ -14,6 +14,9 @@ interface PostDao {
     @Query("SELECT * FROM PostDbModel WHERE username=:username")
     fun getAllOwnedPosts(username: String):List<PostDbModel>
 
+    @Query("SELECT  DISTINCT subreddit FROM postdbmodel")
+    fun getAllSubreddits(): List<String>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(postDbModel: PostDbModel)
 
