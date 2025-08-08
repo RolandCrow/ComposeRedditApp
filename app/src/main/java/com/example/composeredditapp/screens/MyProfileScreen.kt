@@ -1,5 +1,6 @@
 package com.example.composeredditapp.screens
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -16,11 +17,26 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,15 +55,124 @@ import com.example.composeredditapp.R
 import com.example.composeredditapp.components.PostAction
 import com.example.composeredditapp.drawer.ProfileInfo
 import com.example.composeredditapp.model.PostModel
+import com.example.composeredditapp.routing.MyProfileRouter
+import com.example.composeredditapp.routing.MyProfileScreenType
 import com.example.composeredditapp.viewmodel.MainViewModel
 
+private val tabNames = listOf(R.string.posts, R.string.about)
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyProfileScreen(
     viewModel: MainViewModel,
     modifier: Modifier = Modifier,
     onBackSelected: () -> Unit
 ) {
+    ConstraintLayout(
+        modifier = modifier.fillMaxSize()
+    ) {
+        val (topAppBar,tabs,bodyContent) = createRefs()
+        val colors = MaterialTheme.colorScheme
 
+        TopAppBar(
+            title = {
+                Text(
+                    fontSize = 12.sp,
+                    text = stringResource(R.string.default_username),
+                    color = colors.primary
+                )
+            },
+            navigationIcon = {
+                IconButton(
+                    onClick = {onBackSelected.invoke()}
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        tint = colors.primary,
+                        contentDescription = stringResource(id = R.string.back)
+                    )
+                }
+            },
+            modifier = modifier
+                .constrainAs(topAppBar) {
+                    top.linkTo(parent.top)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                }
+                .height(48.dp)
+                .background(Color.Blue)
+        )
+
+        MyProfileTabs(
+            modifier = modifier.constrainAs(tabs) {
+                top.linkTo(topAppBar.bottom)
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+            }
+        )
+
+        Surface(
+            modifier = modifier
+                .constrainAs(bodyContent) {
+                    top.linkTo(tabs.bottom)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                }
+                .padding(bottom = 68.dp)
+        ) {
+            Crossfade(targetState = MyProfileRouter.currentScreen) { screen ->
+                when(screen.value) {
+                    MyProfileScreenType.Posts -> MyProfilePosts(modifier,viewModel)
+                    MyProfileScreenType.About ->  MyProfileAbout()
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
+fun MyProfileTabs(modifier: Modifier = Modifier) {
+    var selectedIndex by remember { mutableIntStateOf(0) }
+    TabRow(
+        selectedTabIndex = selectedIndex,
+        containerColor = MaterialTheme.colorScheme.primary,
+        modifier = modifier
+    ) {
+        tabNames.forEachIndexed { index,nameResource ->
+            Tab(
+                selected = index == selectedIndex,
+                onClick = {
+                    selectedIndex = index
+                    changeScreen(index)
+                }
+            ) {
+                Text(
+                    color = MaterialTheme.colorScheme.secondary,
+                    fontSize = 12.sp,
+                    text = stringResource(nameResource),
+                    modifier = Modifier.padding(top = 8.dp, bottom = 8.dp,)
+                )
+            }
+        }
+    }
+}
+
+private fun changeScreen(index: Int) {
+    return when(index) {
+        0 -> MyProfileRouter.navigateTo(MyProfileScreenType.Posts)
+        else -> MyProfileRouter.navigateTo(MyProfileScreenType.About)
+    }
+}
+
+@Composable
+fun MyProfilePosts(modifier: Modifier,viewModel: MainViewModel) {
+    val posts: List<PostModel> by viewModel.myPost.observeAsState(listOf())
+    LazyColumn(
+        modifier = modifier.background(color = MaterialTheme.colorScheme.secondary)
+    ) {
+        items(posts) {MyProfilePost(modifier,it)}
+    }
 }
 
 @Composable

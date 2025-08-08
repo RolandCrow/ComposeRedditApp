@@ -42,6 +42,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.composeredditapp.drawer.AppDrawer
 import com.example.composeredditapp.routing.Screen
 import com.example.composeredditapp.screens.AddScreen
+import com.example.composeredditapp.screens.ChooseCommunityScreen
 import com.example.composeredditapp.screens.HomeScreen
 import com.example.composeredditapp.screens.MyProfileScreen
 import com.example.composeredditapp.screens.SubredditsScreen
@@ -179,10 +180,13 @@ private fun MainScreenContainer(
                 SubredditsScreen()
             }
             composable(Screen.NewPost.route) {
-                AddScreen()
+                AddScreen(viewModel, navController)
             }
             composable(Screen.MyProfile.route) {
                 MyProfileScreen(viewModel) {navController.popBackStack() }
+            }
+            composable(Screen.ChooseCommunity.route) {
+                ChooseCommunityScreen(viewModel) { navController }
             }
         }
     }
