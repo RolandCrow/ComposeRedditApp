@@ -37,6 +37,7 @@ android {
     }
     buildFeatures {
         compose = true
+        viewBinding = true
     }
 }
 
@@ -52,6 +53,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.runtime.livedata)
     implementation(libs.ui.graphics)
+    implementation(libs.androidx.appcompat)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -75,4 +77,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.livedata.ktx)
     // Constraint layout
     implementation(libs.androidx.constraintlayout.compose)
+    implementation(libs.androidx.constraintlayout)
+
 }

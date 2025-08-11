@@ -47,21 +47,25 @@ import com.example.composeredditapp.R
 import com.example.composeredditapp.model.PostModel
 
 @Composable
-fun TextPost(post: PostModel) {
-    Post(post) {
+fun TextPost(post: PostModel, onJoinButtonClick: (Boolean) -> Unit) {
+    Post(post,onJoinButtonClick) {
         TextContent(post.text)
     }
 }
 
 @Composable
-fun ImagePost(post: PostModel) {
-    Post(post) {
+fun ImagePost(post: PostModel, onJoinButtonClick: (Boolean) -> Unit) {
+    Post(post, onJoinButtonClick) {
         ImageContent(post.image ?: R.drawable.compose_course)
     }
 }
 
 @Composable
-fun Post(post: PostModel, content: @Composable () -> Unit = {}) {
+fun Post(
+    post: PostModel,
+    onJoinButtonClick: (Boolean) -> Unit = {},
+    content: @Composable () -> Unit = {}
+) {
     Card(
         shape = MaterialTheme.shapes.large
     ) {
@@ -71,7 +75,7 @@ fun Post(post: PostModel, content: @Composable () -> Unit = {}) {
                 bottom = 8.dp
             )
         ) {
-            Header(post)
+            Header(post,onJoinButtonClick)
             Spacer(modifier = Modifier.height(4.dp))
             content.invoke()
             Spacer(modifier = Modifier.height(8.dp))
@@ -81,8 +85,14 @@ fun Post(post: PostModel, content: @Composable () -> Unit = {}) {
 }
 
 @Composable
-fun Header(post: PostModel) {
-    Row(modifier = Modifier.padding(start = 16.dp)) {
+fun Header(
+    post: PostModel,
+    onJoinButtonClick: (Boolean) -> Unit = {}
+) {
+    Row(
+        modifier = Modifier.padding(start = 16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Image(
             bitmap = ImageBitmap.imageResource(id = R.drawable.subreddit_placeholder),
             contentDescription = stringResource(id = R.string.subreddits),
@@ -100,6 +110,8 @@ fun Header(post: PostModel) {
                 color = Color.Gray
             )
         }
+        Spacer(modifier = Modifier.width(4.dp))
+        JoinButton(onJoinButtonClick)
         MoreActionsMenu()
     }
     Title(text = post.title)
