@@ -54,6 +54,7 @@ dependencies {
     implementation(libs.androidx.runtime.livedata)
     implementation(libs.ui.graphics)
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.cardview)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

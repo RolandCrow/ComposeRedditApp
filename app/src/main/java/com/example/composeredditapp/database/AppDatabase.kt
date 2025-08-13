@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 import com.example.composeredditapp.database.dao.PostDao
 import com.example.composeredditapp.database.model.PostDbModel
 
-@Database(entities = [PostDbModel::class], version = 1, exportSchema = false)
+@Database(entities = [PostDbModel::class], version = 2, exportSchema = false)
 abstract class AppDatabase: RoomDatabase() {
     companion object {
         const val DATABASE_NAME = "reddit_database"

@@ -1,6 +1,8 @@
 package com.example.composeredditapp.database.dbmapper
 
+import com.example.composeredditapp.R
 import com.example.composeredditapp.database.model.PostDbModel
+import com.example.composeredditapp.database.model.PostDbModel.Companion.DEFAULT_POSTS
 import com.example.composeredditapp.model.PostModel
 import com.example.composeredditapp.model.PostType
 import java.util.concurrent.TimeUnit
@@ -17,10 +19,17 @@ class DbMapperImpl: DbMapper {
                 comments = comments.toString(),
                 type = PostType.fromType(type),
                 postedTime = getPostedDate(datePosted),
-                image = image
+                image = mapImage(dbPostDbModel.id!!)
             )
         }
     }
+
+    private fun mapImage(id: Long): Int? =
+        if (id == DEFAULT_POSTS[1].id) {
+            R.drawable.thailand
+        } else {
+            null
+        }
 
     override fun mapDbPost(postModel: PostModel): PostDbModel {
         with(postModel) {
@@ -35,7 +44,6 @@ class DbMapperImpl: DbMapper {
                 type = type.type,
                 datePosted = System.currentTimeMillis(),
                 isSaved = false,
-                image = image
             )
         }
     }

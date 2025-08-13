@@ -17,23 +17,23 @@ data class PostDbModel(
     @ColumnInfo(name = "comments") val comments: Int,
     @ColumnInfo(name = "type") val type: Int,
     @ColumnInfo(name = "date_posted") val datePosted: Long,
-    @ColumnInfo(name = "is_saved") val isSaved: Boolean,
-    @ColumnInfo(name = "image") val image: Int? = null
+    @ColumnInfo(name = "is_saved") val isSaved: Boolean
 ) {
+
     companion object {
+
         val DEFAULT_POSTS = listOf(
             PostDbModel(
                 1,
                 "johndoe",
                 "androiddev",
-                "Check out this new book about Jetpack Compose from kodeco.com!",
-                "Check out this new book about Jetpack Compose from kodeco.com!",
+                "Check out this new book about Jetpack Compose from Kodeco!",
+                "Check out this new book about Jetpack Compose from Kodeco!",
                 5614,
                 523,
                 0,
                 System.currentTimeMillis(),
-                false,
-                image = R.drawable.compose_course
+                false
             ),
             PostDbModel(
                 2,
@@ -43,16 +43,16 @@ data class PostDbModel(
                 "",
                 2314,
                 23,
-                1, System.currentTimeMillis(),
-                false,
-                image = R.drawable.thailand
+                1,
+                System.currentTimeMillis(),
+                false
             ),
             PostDbModel(
                 3,
                 "johndoe",
                 "programming",
-                "Check out this new book about Jetpack Compose from kodeco.com!",
-                "Check out this new book about Jetpack Compose from kodeco.com!",
+                "Check out this new book about Jetpack Compose from Kodeco!",
+                "Check out this new book about Jetpack Compose from Kodeco!",
                 5214,
                 423,
                 0,
@@ -72,8 +72,16 @@ data class PostDbModel(
                 false
             ),
             PostDbModel(
-                5, "ps_guy", "playstation", "My PS5 just arrived!",
-                "", 56231, 823, 0, System.currentTimeMillis(), false
+                5,
+                "ps_guy",
+                "playstation",
+                "My PS5 just arrived!",
+                "",
+                56231,
+                823,
+                0,
+                System.currentTimeMillis(),
+                false
             )
         )
     }

@@ -26,6 +26,7 @@ ksp = "2.0.21-1.0.25"
 runtimeLivedata = "1.8.3"
 uiGraphics = "1.8.3"
 appcompat = "1.7.1"
+cardview = "1.0.0"
 
 [libraries]
 androidx-compiler = { module = "androidx.compose.compiler:compiler", version.ref = "compiler" }
@@ -60,6 +61,7 @@ androidx-compose-material3 = { group = "androidx.wear.compose", name = "compose-
 androidx-runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata", version.ref = "runtimeLivedata" }
 ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics", version.ref = "uiGraphics" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+androidx-cardview = { group = "androidx.cardview", name = "cardview", version.ref = "cardview" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
