@@ -41,6 +41,11 @@ import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -48,15 +53,23 @@ import com.example.composeredditapp.R
 import com.example.composeredditapp.model.PostModel
 
 @Composable
-fun TextPost(post: PostModel, onJoinButtonClick: (Boolean) -> Unit) {
-    Post(post,onJoinButtonClick) {
+fun TextPost(
+    post: PostModel,
+    onPostClicked: () -> Unit = {},
+    onJoinButtonClick: (Boolean) -> Unit = {}
+) {
+    Post(post,onJoinButtonClick,onPostClicked) {
         TextContent(post.text)
     }
 }
 
 @Composable
-fun ImagePost(post: PostModel, onJoinButtonClick: (Boolean) -> Unit) {
-    Post(post, onJoinButtonClick) {
+fun ImagePost(
+    post: PostModel,
+    onPostClicked: () -> Unit = {} ,
+    onJoinButtonClick: (Boolean) -> Unit = {},
+    ) {
+    Post(post, onJoinButtonClick, onPostClicked) {
         ImageContent(post.image ?: R.drawable.compose_course)
     }
 }
@@ -65,10 +78,45 @@ fun ImagePost(post: PostModel, onJoinButtonClick: (Boolean) -> Unit) {
 fun Post(
     post: PostModel,
     onJoinButtonClick: (Boolean) -> Unit = {},
+    onPostClicked: () -> Unit = {},
     content: @Composable () -> Unit = {}
 ) {
     Card(
-        shape = MaterialTheme.shapes.large
+        shape = MaterialTheme.shapes.large,
+        onClick = {onPostClicked.invoke()},
+        modifier = Modifier.semantics {
+            customActions = listOf(
+                CustomAccessibilityAction(
+                    label = "Join",
+                    action = {true}
+                ),
+                CustomAccessibilityAction(
+                    label = "Save post",
+                    action = {true}
+                ),
+                CustomAccessibilityAction(
+                    label =  "Upvote",
+                    action = {true}
+                ),
+                CustomAccessibilityAction(
+                    label =  "Downvote",
+                    action = {true}
+                ),
+                CustomAccessibilityAction(
+                    label = "Navigate to comments",
+                    action = {true}
+                ),
+                CustomAccessibilityAction(
+                    label = "Share",
+                    action = {true}
+                ),
+                CustomAccessibilityAction(
+                    label = "Award",
+                    action = {true}
+                )
+
+            )
+        }
     ) {
         Column(
             modifier = Modifier.padding(
@@ -121,7 +169,7 @@ fun Header(
 @Composable
 fun MoreActionsMenu() {
     var expanded by remember { mutableStateOf(false) }
-    Box(modifier = Modifier.wrapContentSize(Alignment.TopStart)) {
+    Box(modifier = Modifier.wrapContentSize(Alignment.TopStart).clearAndSetSemantics{}) {
         IconButton(onClick = { expanded = true }) {
             Icon(
                 imageVector = Icons.Default.MoreVert,
@@ -205,7 +253,8 @@ fun PostActions(post: PostModel) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 16.dp, end = 16.dp,),
+            .padding(start = 16.dp, end = 16.dp,)
+            .clearAndSetSemantics{},
         horizontalArrangement = Arrangement.Absolute.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -213,6 +262,8 @@ fun PostActions(post: PostModel) {
         PostAction(
             vectorResourceId = R.drawable.ic_baseline_comment_24,
             text = post.comments,
+            actionContentDescription = "Navigate to comments",
+            actionValueContentDescription = "${post.comments} Comments",
             onClickAction = {}
         )
         PostAction(
@@ -234,24 +285,37 @@ fun VotingAction(
     onUpVoteAction: () -> Unit,
     onDownVoteAction: () -> Unit
 ) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        ArrowButton(onUpVoteAction, R.drawable.ic_baseline_arrow_upward_24)
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.semantics{
+            contentDescription = "Submission score"
+        }
+    ) {
+        ArrowButton(
+            onUpVoteAction,
+            R.drawable.ic_baseline_arrow_upward_24,
+            R.string.upvote
+        )
         Text(
             text = text,
             color = Color.Gray,
             fontWeight = FontWeight.Medium,
             fontSize = 12.sp
         )
-        ArrowButton(onDownVoteAction,R.drawable.ic_baseline_arrow_downward_24)
+        ArrowButton(
+            onDownVoteAction,
+            R.drawable.ic_baseline_arrow_downward_24,
+            R.string.downvote
+        )
     }
 }
 
 @Composable
-fun ArrowButton(onClickAction: () -> Unit, arrowResourceId: Int) {
+fun ArrowButton(onClickAction: () -> Unit, arrowResourceId: Int, contentDescriptionResourceId: Int) {
     IconButton(onClick = onClickAction, modifier = Modifier.size(30.dp)) {
         Icon(
             imageVector = ImageVector.vectorResource(arrowResourceId),
-            contentDescription = stringResource(id = R.string.upvote),
+            contentDescription = stringResource(contentDescriptionResourceId),
             modifier = Modifier.size(20.dp),
             tint = Color.Gray
         )
@@ -262,18 +326,39 @@ fun ArrowButton(onClickAction: () -> Unit, arrowResourceId: Int) {
 fun PostAction(
     @DrawableRes vectorResourceId: Int,
     text: String,
+    actionContentDescription: String? = null,
+    actionValueContentDescription: String? = null,
     onClickAction: () -> Unit
 ) {
-    Box(modifier = Modifier.clickable(onClick = onClickAction)) {
+    Box(
+        modifier = Modifier.clickable(
+            onClick = onClickAction,
+            onClickLabel = ""
+        ).semantics {
+            if (actionContentDescription != null) {
+                contentDescription = actionContentDescription
+            }
+        }
+    ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
                ImageVector.vectorResource(id = vectorResourceId),
-                contentDescription = stringResource(id = R.string.post_action),
+                contentDescription = null,
                 tint = Color.Gray,
                 modifier = Modifier.size(20.dp)
             )
             Spacer(modifier = Modifier.width(4.dp))
-            Text(text = text, fontWeight = FontWeight.Medium, color = Color.Gray)
+            Text(
+                text = text,
+                fontWeight = FontWeight.Medium,
+                color = Color.Gray,
+                fontSize = 12.sp,
+                modifier = Modifier.semantics{
+                    if(actionValueContentDescription != null) {
+                        contentDescription = actionValueContentDescription
+                    }
+                }
+            )
         }
     }
 }
