@@ -1,10 +1,12 @@
 package com.example.composeredditapp
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
@@ -30,8 +32,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -42,6 +47,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.composeredditapp.drawer.AppDrawer
 import com.example.composeredditapp.routing.Screen
 import com.example.composeredditapp.screens.AddScreen
+import com.example.composeredditapp.screens.ChatActivity
 import com.example.composeredditapp.screens.ChooseCommunityScreen
 import com.example.composeredditapp.screens.HomeScreen
 import com.example.composeredditapp.screens.MyProfileScreen
@@ -130,6 +136,7 @@ fun TopAppBar(
     drawerState: DrawerState,
     coroutineScope: CoroutineScope
 ) {
+    val context = LocalContext.current
     val colors = MaterialTheme.colorScheme
 
     androidx.compose.material3.TopAppBar(
@@ -154,6 +161,22 @@ fun TopAppBar(
                     tint = Color.LightGray,
                     contentDescription = stringResource(id = R.string.account)
                 )
+            }
+        },
+        actions = {
+            if(screen == Screen.Home) {
+                IconButton(
+                    modifier = Modifier.semantics {
+                        onClick(label = "Open Chat", action = null)
+                    },
+                    onClick = {context.startActivity(Intent(context, ChatActivity::class.java))}
+                ) {
+                    Icon(
+                        Icons.Filled.MailOutline,
+                        tint = Color.LightGray,
+                        contentDescription = "Navigate to Chat"
+                    )
+                }
             }
         }
     )

@@ -23,6 +23,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name="com.example.composeredditapp.screens.ChatActivity"
+            android:theme="@style/Theme.ComposeRedditApp"
+            android:exported="true"/>
+
+        <activity
+            android:name="com.example.composeredditapp.screens.PostActivity"
+            android:theme="@style/Theme.ComposeRedditApp"
+            android:exported="true"/>
+
     </application>
 
 </manifest>
