@@ -79,5 +79,9 @@ dependencies {
     // Constraint layout
     implementation(libs.androidx.constraintlayout.compose)
     implementation(libs.androidx.constraintlayout)
+    // App Widgets
+    implementation(libs.androidx.glance.appwidget)
+    // Data Store
+    implementation(libs.androidx.datastore.preferences)
 
 }
